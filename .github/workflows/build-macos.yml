@@ -14,18 +14,18 @@ jobs:
         uses: actions/checkout@v4
 
       - name: FreePascal Compiler via Homebrew installieren
-        run: |
-          brew install fpc
+        run: brew install fpc
 
-      - name: Lazarus LCL & lazbuild herunterladen und bauen
+      - name: Lazarus 4.4 herunterladen und LCL + lazbuild bauen
         run: |
-          git clone --depth 1 --branch lazarus_4_4 https://gitlab.com ~/lazarus
+          curl -L "https://gitlab.com/freepascal.org/lazarus/lazarus/-/archive/lazarus_4_4/lazarus-lazarus_4_4.tar.gz" -o lazarus.tar.gz
+          mkdir -p ~/lazarus
+          tar -xzf lazarus.tar.gz -C ~/lazarus --strip-components=1
           cd ~/lazarus
           make lazbuild lcl LCL_PLATFORM=cocoa
 
       - name: macOS App-Bundle kompilieren
-        run: |
-          ~/lazarus/lazbuild --ws=cocoa obskur.lpi
+        run: ~/lazarus/lazbuild --ws=cocoa obskur.lpi
 
       - name: Fertige obskur.app verpacken
         run: |
