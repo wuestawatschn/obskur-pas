@@ -25,7 +25,7 @@ jobs:
           make lazbuild lcl LCL_PLATFORM=cocoa
 
       - name: macOS App-Bundle kompilieren
-        run: ~/lazarus/lazbuild --ws=cocoa obskur.lpi
+        run: ~/lazarus/lazbuild --lazarusdir=$HOME/lazarus --ws=cocoa obskur.lpi
 
       - name: Fertige obskur.app verpacken
         run: |
