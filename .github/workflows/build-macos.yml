@@ -30,14 +30,8 @@ jobs:
       - name: Fertige obskur.app verpacken
         run: |
           mkdir -p dist
-          APP_DIR=$(find . -name "obskur.app" -type d | head -n 1)
-          BIN_FILE=$(find lib -name "obskur" -type f | head -n 1)
-          if [ -n "$APP_DIR" ] && [ -n "$BIN_FILE" ]; then
-            mkdir -p "$APP_DIR/Contents/MacOS"
-            cp "$BIN_FILE" "$APP_DIR/Contents/MacOS/obskur"
-            chmod +x "$APP_DIR/Contents/MacOS/obskur"
-            cp -R "$APP_DIR" dist/
-          fi
+          cp -RL lib/aarch64-darwin/obskur.app dist/
+          chmod +x dist/obskur.app/Contents/MacOS/obskur
 
       - name: macOS App als Artifact hochladen
         uses: actions/upload-artifact@v4
