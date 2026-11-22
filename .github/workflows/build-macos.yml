@@ -13,19 +13,23 @@ jobs:
       - name: Repository auschecken
         uses: actions/checkout@v4
 
-      - name: FreePascal & Lazarus via Homebrew installieren
+      - name: FreePascal Compiler via Homebrew installieren
         run: |
-          brew update
-          brew install --cask fpc-laz fpc-src-laz lazarus
+          brew install fpc
 
-      - name: macOS App-Bundle mit Cocoa kompilieren
+      - name: Lazarus LCL & lazbuild herunterladen und bauen
         run: |
-          lazbuild --ws=cocoa obskur.lpi
+          git clone --depth 1 --branch lazarus_4_4 https://gitlab.com ~/lazarus
+          cd ~/lazarus
+          make lazbuild lcl LCL_PLATFORM=cocoa
+
+      - name: macOS App-Bundle kompilieren
+        run: |
+          ~/lazarus/lazbuild --ws=cocoa obskur.lpi
 
       - name: Fertige obskur.app verpacken
         run: |
           mkdir -p dist
-          # Binary aus dem Output-Ordner in das .app-Bundle kopieren, falls nötig
           APP_DIR=$(find . -name "obskur.app" -type d | head -n 1)
           BIN_FILE=$(find lib -name "obskur" -type f | head -n 1)
           if [ -n "$APP_DIR" ] && [ -n "$BIN_FILE" ]; then
