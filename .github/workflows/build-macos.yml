@@ -68,17 +68,18 @@ jobs:
       - name: Repository auschecken
         uses: actions/checkout@v4
 
-      - name: Lazarus & FreePascal via Chocolatey installieren
-        run: choco install lazarus -y --no-progress
+      - name: Lazarus 4.4 Win64 herunterladen & silent installieren
+        shell: pwsh
+        run: |
+          curl.exe -L -A "Mozilla/5.0" "https://sourceforge.net/projects/lazarus/files/Lazarus%20Windows%2064%20bits/Lazarus%204.4/lazarus-4.4-fpc-3.2.2-win64.exe/download" -o laz-win64.exe
+          Start-Process -FilePath ".\laz-win64.exe" -ArgumentList "/VERYSILENT", "/SUPPRESSMSGBOXES", "/NORESTART", "/DIR=C:\lazarus" -Wait
 
       - name: Windows obskur.exe kompilieren
         shell: pwsh
         run: |
-          $laz = Get-ChildItem -Path "C:\" -Filter "lazbuild.exe" -Recurse -ErrorAction SilentlyContinue | Select-Object -First 1
-          & $laz.FullName --ws=win32 obskur.lpi
+          C:\lazarus\lazbuild.exe --lazarusdir=C:\lazarus --ws=win32 obskur.lpi
           New-Item -ItemType Directory -Force -Path dist | Out-Null
-          $exe = Get-ChildItem -Path "lib" -Filter "obskur.exe" -Recurse | Select-Object -First 1
-          Copy-Item $exe.FullName -Destination "dist\obskur.exe"
+          Copy-Item "lib\x86_64-win64\obskur.exe" -Destination "dist\obskur.exe"
 
       - name: Windows EXE als Artifact hochladen
         uses: actions/upload-artifact@v4
