@@ -7,7 +7,7 @@
 An interactive 3D function and sculpture generator written in **FreePascal / Lazarus** for **Linux, macOS, and Windows**.
 
 ## Background & History
-The original **`obskur.exe`** was created in **1990** in **Turbo Pascal** (using the classic BGI graphics library in 16-color EGA mode) to draw isometric 3D wave landscapes polygon by polygon on DOS PCs.
+The original **`obskur.exe`** (the source code obskur.pas got lost over time) was created in **1990** in **Turbo Pascal** (using the classic BGI graphics library in 16-color EGA mode) to draw isometric 3D wave landscapes polygon by polygon on DOS PCs.
 
 In **2026**, the original 16-bit DOS executable was reconstructed via reverse engineering and evolved into a modern, cross-platform **64-bit desktop application** — featuring 24-bit TrueColor, interactive 3D mouse rotation, spherical projection, live bilingual UI (**English / German**), and 28 mathematical 3D formulas.
 
@@ -26,7 +26,15 @@ Pre-built 64-bit binaries for all three operating systems are available on the *
 ## Building from Source
 Requires **FreePascal (`fpc`)** and **Lazarus (`lazbuild`)** (plus `libgtk2.0-dev` on Debian/Ubuntu):
 ```bash
+# Linux (GTK2)
 lazbuild obskur.lpi
+./lib/x86_64-linux/obskur
+
+# macOS (Cocoa)
+lazbuild --ws=cocoa --opt="-k-ld_classic" obskur.lpi
+
+# Windows (Win32/Win64)
+lazbuild --ws=win32 obskur.lpi
 ```
 
 ## License
