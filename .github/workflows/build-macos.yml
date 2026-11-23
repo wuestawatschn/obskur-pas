@@ -1,4 +1,4 @@
-name: Build OBSKUR for macOS & Windows
+name: Build OBSKUR for Linux, macOS & Windows
 
 on:
   push:
@@ -6,6 +6,30 @@ on:
   workflow_dispatch:
 
 jobs:
+  build-linux:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Repository auschecken
+        uses: actions/checkout@v4
+
+      - name: Lazarus & GTK2 installieren
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y lazarus fpc libgtk2.0-dev
+
+      - name: Linux Binary kompilieren
+        run: |
+          lazbuild --ws=gtk2 obskur.lpi
+          mkdir -p dist
+          cp lib/x86_64-linux/obskur dist/obskur-linux-x86_64
+          chmod +x dist/obskur-linux-x86_64
+
+      - name: Linux Binary als Artifact hochladen
+        uses: actions/upload-artifact@v4
+        with:
+          name: OBSKUR-Linux-x86_64
+          path: dist/obskur-linux-x86_64
+
   build-macos:
     runs-on: macos-latest
     steps:
