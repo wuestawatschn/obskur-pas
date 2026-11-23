@@ -37,6 +37,25 @@ const
     '26: Wurmloch-Trichter', '27: Polar-Kartesisches Chaos'
   );
 
+  FORMULA_NAMES_EN: array[0..NUM_MODES - 1] of string = (
+    '0: Sine-Cosine Waves', '1: Mexican Hat (Damped)', '2: Cross Waves',
+    '3: Interference Grid', '4: Radial Wave (Sinc)', '5: Asymmetric Dune',
+    '6: Diagonal Pattern', '7: Ring Modulation', '8: Hyperbolic Saddle',
+    '9: Comb Waves', '10: Gaussian Pulse', '11: Classic Mix',
+    '12: Spiral Galaxy', '13: Volcanic Crater', '14: Egg Carton',
+    '15: 4-Petal Flower', '16: Concentric Rings', '17: Swirled Dunes',
+    '18: Pyramid Peaks', '19: Tornado Vortex',
+    '20: Mandelbrot Fractal', '21: Quasicrystal (5-fold)',
+    '22: Basketweave Knot', '23: 3-Source Interference',
+    '24: Stepped Pyramid', '25: Plasma Turbulence',
+    '26: Wormhole Funnel', '27: Polar-Cartesian Chaos'
+  );
+
+  PALETTE_NAMES_EN: array[0..NUM_PALETTES - 1] of string = (
+    '0: Classic (Monochrome)', '1: Lava & Embers', '2: Deep Sea & Ocean',
+    '3: Northern Lights (Aurora)', '4: Rainbow Spectrum'
+  );
+
 type
   TQuadItem = record
     r, c: Integer;
@@ -52,9 +71,9 @@ type
     Timer: TTimer;
 
     BtnRandom, BtnRedraw, BtnPause, BtnSave: TButton;
-    LblStatus, LblGrid, LblSpeed: TLabel;
+    LblStatus, LblGrid, LblSpeed, LblLang, LblFormula, LblPalette, LblStep, LblWidth, LblAmp, LblHue, LblYaw, LblPitch: TLabel;
     ChkAuto, ChkMirror, ChkSphere, ChkWaveAnim: TCheckBox;
-    CmbFormula, CmbPalette: TComboBox;
+    CmbLang, CmbFormula, CmbPalette: TComboBox;
     TrkSpeed, TrkGrid, TrkStep, TrkWidth, TrkAmp, TrkHue, TrkYaw, TrkPitch: TTrackBar;
 
     Heights: array[0..MAX_GRID - 1, 0..MAX_GRID - 1] of Double;
@@ -67,11 +86,12 @@ type
     CurRow, CurCol: Integer;
     FinishedAt: TDateTime;
     QuadCount, CurQuadIdx: Integer;
-    IsDragging, UpdatingUI: Boolean;
+    IsDragging, UpdatingUI, FIsEnglish: Boolean;
     LastMouse: TPoint;
 
     procedure QuickSortQuads(L, R_idx: Integer);
     procedure BuildUI;
+    procedure ApplyLanguage;
     procedure SyncControlsFromParams;
     procedure RandomizeParams;
     procedure ComputeHeights;
@@ -466,9 +486,73 @@ begin
   PaintBox.Invalidate;
 end;
 
+procedure TObskurForm.ApplyLanguage;
+var
+  i, savedFormula, savedPalette: Integer;
+begin
+  UpdatingUI := True;
+  savedFormula := FMode;
+  savedPalette := FPalette;
+  CmbFormula.Items.Clear;
+  CmbPalette.Items.Clear;
+
+  if FIsEnglish then
+  begin
+    LblLang.Caption := 'Language / Sprache:';
+    BtnRandom.Caption := 'Random & New';
+    BtnRedraw.Caption := 'Redraw';
+    if FPaused then BtnPause.Caption := 'Resume' else BtnPause.Caption := 'Pause';
+    BtnSave.Caption := 'Save as PNG';
+    ChkAuto.Caption := 'Auto-Cycle';
+    ChkWaveAnim.Caption := 'Live Waves';
+    LblSpeed.Caption := Format('Speed: %d (1 = slow .. 100 = instant)', [FSpeedMs]);
+    LblFormula.Caption := '3D Formula:';
+    LblPalette.Caption := 'Color Palette:';
+    LblGrid.Caption := Format('Resolution: %d x %d', [FGridSize - 1, FGridSize - 1]);
+    LblStep.Caption := 'Grid Step (1 = fine):';
+    LblWidth.Caption := 'Grid Width / Radius:';
+    LblAmp.Caption := 'Height (Amplitude):';
+    LblHue.Caption := 'Hue / Base Offset:';
+    ChkMirror.Caption := 'Mirror';
+    ChkSphere.Caption := 'Sphere Mode';
+    LblYaw.Caption := 'Rotation (or drag mouse):';
+    LblPitch.Caption := 'Tilt (Pitch):';
+    for i := 0 to NUM_MODES - 1 do CmbFormula.Items.Add(FORMULA_NAMES_EN[i]);
+    for i := 0 to NUM_PALETTES - 1 do CmbPalette.Items.Add(PALETTE_NAMES_EN[i]);
+  end
+  else
+  begin
+    LblLang.Caption := 'Sprache / Language:';
+    BtnRandom.Caption := 'Zufall & Neu';
+    BtnRedraw.Caption := 'Neu zeichnen';
+    if FIsEnglish then begin if FPaused then BtnPause.Caption := 'Resume' else BtnPause.Caption := 'Pause'; end else begin if FPaused then BtnPause.Caption := 'Weiter' else BtnPause.Caption := 'Pause'; end;
+    BtnSave.Caption := 'Als PNG speichern';
+    ChkAuto.Caption := 'Auto-Wechsel';
+    ChkWaveAnim.Caption := 'Live-Wellen';
+    if FIsEnglish then LblSpeed.Caption := Format('Speed: %d (1 = slow .. 100 = instant)', [FSpeedMs]) else LblSpeed.Caption := Format('Tempo: %d (1 = Zeitlupe .. 100 = sofort)', [FSpeedMs]);
+    LblFormula.Caption := '3D-Formel:';
+    LblPalette.Caption := 'Farbpalette:';
+    if FIsEnglish then LblGrid.Caption := Format('Resolution: %d x %d', [FGridSize - 1, FGridSize - 1]) else LblGrid.Caption := Format('Auflösung: %d x %d', [FGridSize - 1, FGridSize - 1]);
+    LblStep.Caption := 'Raster-Schritt (1 = fein):';
+    LblWidth.Caption := 'Gitter-Breite / Radius:';
+    LblAmp.Caption := 'Höhe (Amplitude):';
+    LblHue.Caption := 'Farbton / Basis-Offset:';
+    ChkMirror.Caption := 'Spiegelung';
+    ChkSphere.Caption := 'Kugel-Modus';
+    LblYaw.Caption := 'Drehung (oder Maus ziehen):';
+    LblPitch.Caption := 'Kippung:';
+    for i := 0 to NUM_MODES - 1 do CmbFormula.Items.Add(FORMULA_NAMES[i]);
+    for i := 0 to NUM_PALETTES - 1 do CmbPalette.Items.Add(PALETTE_NAMES[i]);
+  end;
+
+  CmbFormula.ItemIndex := savedFormula;
+  CmbPalette.ItemIndex := savedPalette;
+  UpdatingUI := False;
+end;
+
 procedure TObskurForm.BuildUI;
 var
-  yPos, i: Integer;
+  yPos: Integer;
   function AddLabel(const Cap: string; Y: Integer): TLabel;
   begin
     Result := TLabel.Create(Self); Result.Parent := SidePanel;
@@ -482,8 +566,8 @@ var
   end;
 begin
   UpdatingUI := True;
-  Width := 1060; Height := 745;
-  Caption := 'OBSKUR Studio (FreePascal / Lazarus)';
+  Width := 1060; Height := 790;
+  Caption := 'OBSKUR Studio (1990 - 2026)';
   Position := poScreenCenter;
 
   SidePanel := TPanel.Create(Self); SidePanel.Parent := Self;
@@ -496,76 +580,70 @@ begin
   PaintBox.OnMouseUp := @OnCanvasMouseUp;
 
   yPos := 8;
+  LblLang := AddLabel('Sprache / Language:', yPos);
+  CmbLang := TComboBox.Create(Self); CmbLang.Parent := SidePanel;
+  CmbLang.SetBounds(135, yPos - 3, 107, 25); CmbLang.Style := csDropDownList;
+  CmbLang.Items.Add('Deutsch'); CmbLang.Items.Add('English');
+  CmbLang.ItemIndex := 0; CmbLang.OnChange := @OnParamChanged; Inc(yPos, 30);
+
   BtnRandom := TButton.Create(Self); BtnRandom.Parent := SidePanel;
-  BtnRandom.SetBounds(12, yPos, 230, 26); BtnRandom.Caption := 'Zufall & Neu';
-  BtnRandom.OnClick := @OnBtnRandomClick; Inc(yPos, 30);
+  BtnRandom.SetBounds(12, yPos, 230, 26); BtnRandom.OnClick := @OnBtnRandomClick; Inc(yPos, 30);
 
   BtnRedraw := TButton.Create(Self); BtnRedraw.Parent := SidePanel;
-  BtnRedraw.SetBounds(12, yPos, 112, 26); BtnRedraw.Caption := 'Neu zeichnen';
-  BtnRedraw.OnClick := @OnBtnRedrawClick;
+  BtnRedraw.SetBounds(12, yPos, 112, 26); BtnRedraw.OnClick := @OnBtnRedrawClick;
 
   BtnPause := TButton.Create(Self); BtnPause.Parent := SidePanel;
-  BtnPause.SetBounds(130, yPos, 112, 26); BtnPause.Caption := 'Pause';
-  BtnPause.OnClick := @OnBtnPauseClick; Inc(yPos, 30);
+  BtnPause.SetBounds(130, yPos, 112, 26); BtnPause.OnClick := @OnBtnPauseClick; Inc(yPos, 30);
 
   BtnSave := TButton.Create(Self); BtnSave.Parent := SidePanel;
-  BtnSave.SetBounds(12, yPos, 230, 26); BtnSave.Caption := 'Als PNG speichern';
-  BtnSave.OnClick := @OnBtnSaveClick; Inc(yPos, 28);
+  BtnSave.SetBounds(12, yPos, 230, 26); BtnSave.OnClick := @OnBtnSaveClick; Inc(yPos, 28);
 
   LblStatus := AddLabel('', yPos); Inc(yPos, 20);
 
   ChkAuto := TCheckBox.Create(Self); ChkAuto.Parent := SidePanel;
-  ChkAuto.SetBounds(12, yPos, 115, 22); ChkAuto.Caption := 'Auto-Wechsel';
-  ChkAuto.Checked := FAutoCycle; ChkAuto.OnChange := @OnParamChanged;
+  ChkAuto.SetBounds(12, yPos, 115, 22); ChkAuto.Checked := FAutoCycle; ChkAuto.OnChange := @OnParamChanged;
 
   ChkWaveAnim := TCheckBox.Create(Self); ChkWaveAnim.Parent := SidePanel;
-  ChkWaveAnim.SetBounds(130, yPos, 115, 22); ChkWaveAnim.Caption := 'Live-Wellen';
-  ChkWaveAnim.Checked := FWaveAnim; ChkWaveAnim.OnChange := @OnParamChanged; Inc(yPos, 24);
+  ChkWaveAnim.SetBounds(130, yPos, 115, 22); ChkWaveAnim.Checked := FWaveAnim; ChkWaveAnim.OnChange := @OnParamChanged; Inc(yPos, 24);
 
-  LblSpeed := AddLabel(Format('Tempo: %d (1 = Zeitlupe .. 100 = sofort)', [FSpeedMs]), yPos); Inc(yPos, 16);
+  LblSpeed := AddLabel('', yPos); Inc(yPos, 16);
   TrkSpeed := AddTrack(1, 100, FSpeedMs, yPos); Inc(yPos, 28);
 
-  AddLabel('3D-Formel:', yPos); Inc(yPos, 16);
+  LblFormula := AddLabel('', yPos); Inc(yPos, 16);
   CmbFormula := TComboBox.Create(Self); CmbFormula.Parent := SidePanel;
-  CmbFormula.SetBounds(12, yPos, 230, 26); CmbFormula.Style := csDropDownList;
-  for i := 0 to NUM_MODES - 1 do CmbFormula.Items.Add(FORMULA_NAMES[i]);
-  CmbFormula.ItemIndex := FMode; CmbFormula.OnChange := @OnParamChanged; Inc(yPos, 30);
+  CmbFormula.SetBounds(12, yPos, 230, 26); CmbFormula.Style := csDropDownList; CmbFormula.OnChange := @OnParamChanged; Inc(yPos, 30);
 
-  AddLabel('Farbpalette:', yPos); Inc(yPos, 16);
+  LblPalette := AddLabel('', yPos); Inc(yPos, 16);
   CmbPalette := TComboBox.Create(Self); CmbPalette.Parent := SidePanel;
-  CmbPalette.SetBounds(12, yPos, 230, 26); CmbPalette.Style := csDropDownList;
-  for i := 0 to NUM_PALETTES - 1 do CmbPalette.Items.Add(PALETTE_NAMES[i]);
-  CmbPalette.ItemIndex := FPalette; CmbPalette.OnChange := @OnParamChanged; Inc(yPos, 30);
+  CmbPalette.SetBounds(12, yPos, 230, 26); CmbPalette.Style := csDropDownList; CmbPalette.OnChange := @OnParamChanged; Inc(yPos, 30);
 
-  LblGrid := AddLabel(Format('Auflösung: %d x %d', [FGridSize - 1, FGridSize - 1]), yPos); Inc(yPos, 16);
+  LblGrid := AddLabel('', yPos); Inc(yPos, 16);
   TrkGrid := AddTrack(64, 1024, FGridSize - 1, yPos); Inc(yPos, 28);
 
-  AddLabel('Raster-Schritt (1 = fein):', yPos); Inc(yPos, 16);
+  LblStep := AddLabel('', yPos); Inc(yPos, 16);
   TrkStep := AddTrack(1, 16, FStep, yPos); Inc(yPos, 28);
 
-  AddLabel('Gitter-Breite / Radius:', yPos); Inc(yPos, 16);
+  LblWidth := AddLabel('', yPos); Inc(yPos, 16);
   TrkWidth := AddTrack(2, 14, FDx, yPos); Inc(yPos, 28);
 
-  AddLabel('Höhe (Amplitude):', yPos); Inc(yPos, 16);
+  LblAmp := AddLabel('', yPos); Inc(yPos, 16);
   TrkAmp := AddTrack(50, 1200, Round(FAmp), yPos); Inc(yPos, 28);
 
-  AddLabel('Farbton / Basis-Offset:', yPos); Inc(yPos, 16);
+  LblHue := AddLabel('', yPos); Inc(yPos, 16);
   TrkHue := AddTrack(0, 360, Round(FHue), yPos); Inc(yPos, 28);
 
   ChkMirror := TCheckBox.Create(Self); ChkMirror.Parent := SidePanel;
-  ChkMirror.SetBounds(12, yPos, 115, 22); ChkMirror.Caption := 'Spiegelung';
-  ChkMirror.Checked := FDoubleMirror; ChkMirror.OnChange := @OnParamChanged;
+  ChkMirror.SetBounds(12, yPos, 115, 22); ChkMirror.Checked := FDoubleMirror; ChkMirror.OnChange := @OnParamChanged;
 
   ChkSphere := TCheckBox.Create(Self); ChkSphere.Parent := SidePanel;
-  ChkSphere.SetBounds(130, yPos, 115, 22); ChkSphere.Caption := 'Kugel-Modus';
-  ChkSphere.Checked := FSphereMode; ChkSphere.OnChange := @OnParamChanged; Inc(yPos, 24);
+  ChkSphere.SetBounds(130, yPos, 115, 22); ChkSphere.Checked := FSphereMode; ChkSphere.OnChange := @OnParamChanged; Inc(yPos, 24);
 
-  AddLabel('Drehung (oder Maus ziehen):', yPos); Inc(yPos, 16);
+  LblYaw := AddLabel('', yPos); Inc(yPos, 16);
   TrkYaw := AddTrack(0, 360, Round(FYaw), yPos); Inc(yPos, 28);
 
-  AddLabel('Kippung:', yPos); Inc(yPos, 16);
+  LblPitch := AddLabel('', yPos); Inc(yPos, 16);
   TrkPitch := AddTrack(-85, 85, Round(FPitch), yPos);
-  UpdatingUI := False;
+  ApplyLanguage;
 end;
 
 procedure TObskurForm.SyncControlsFromParams;
@@ -579,7 +657,7 @@ begin
   CmbFormula.ItemIndex := FMode;
   CmbPalette.ItemIndex := FPalette;
   TrkGrid.Position := FGridSize - 1;
-  LblGrid.Caption := Format('Auflösung: %d x %d', [FGridSize - 1, FGridSize - 1]);
+  if FIsEnglish then LblGrid.Caption := Format('Resolution: %d x %d', [FGridSize - 1, FGridSize - 1]) else LblGrid.Caption := Format('Auflösung: %d x %d', [FGridSize - 1, FGridSize - 1]);
   TrkStep.Position := FStep;
   TrkWidth.Position := FDx;
   TrkAmp.Position := Round(FAmp);
@@ -675,7 +753,7 @@ end;
 procedure TObskurForm.OnBtnPauseClick(Sender: TObject);
 begin
   FPaused := not FPaused;
-  if FPaused then BtnPause.Caption := 'Weiter' else BtnPause.Caption := 'Pause';
+  if FIsEnglish then begin if FPaused then BtnPause.Caption := 'Resume' else BtnPause.Caption := 'Pause'; end else begin if FPaused then BtnPause.Caption := 'Weiter' else BtnPause.Caption := 'Pause'; end;
 end;
 
 procedure TObskurForm.OnBtnSaveClick(Sender: TObject);
@@ -687,7 +765,7 @@ begin
   png := TPortableNetworkGraphic.Create;
   try
     png.Assign(BufferBmp); png.SaveToFile(fname);
-    LblStatus.Caption := 'Gespeichert: ' + fname;
+    if FIsEnglish then LblStatus.Caption := 'Saved: ' + fname else LblStatus.Caption := 'Gespeichert: ' + fname;
   finally
     png.Free;
   end;
@@ -697,7 +775,8 @@ procedure TObskurForm.OnParamChanged(Sender: TObject);
 begin
   if UpdatingUI then Exit;
   FSpeedMs := TrkSpeed.Position;
-  LblSpeed.Caption := Format('Tempo: %d (1 = Zeitlupe .. 100 = sofort)', [FSpeedMs]);
+  if FIsEnglish then LblSpeed.Caption := Format('Speed: %d (1 = slow .. 100 = instant)', [FSpeedMs]) else LblSpeed.Caption := Format('Tempo: %d (1 = Zeitlupe .. 100 = sofort)', [FSpeedMs]);
+  if Sender = CmbLang then begin FIsEnglish := (CmbLang.ItemIndex = 1); ApplyLanguage; Exit; end;
   if Sender = TrkSpeed then Exit;
   if Sender = ChkAuto then begin FAutoCycle := ChkAuto.Checked; Exit; end;
   if Sender = ChkWaveAnim then
@@ -711,7 +790,7 @@ begin
   FMode := CmbFormula.ItemIndex;
   FPalette := CmbPalette.ItemIndex;
   FGridSize := TrkGrid.Position + 1;
-  LblGrid.Caption := Format('Auflösung: %d x %d', [FGridSize - 1, FGridSize - 1]);
+  if FIsEnglish then LblGrid.Caption := Format('Resolution: %d x %d', [FGridSize - 1, FGridSize - 1]) else LblGrid.Caption := Format('Auflösung: %d x %d', [FGridSize - 1, FGridSize - 1]);
   FStep := TrkStep.Position;
   FDx := TrkWidth.Position;
   FAmp := TrkAmp.Position;
