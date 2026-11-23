@@ -1,5 +1,7 @@
 # OBSKUR Studio (1990 → 2026)
 
+![OBSKUR Studio 3D Plasma-Kugel](preview.png)
+
 Ein interaktiver 3D-Funktions- und Skulpturen-Generator in **FreePascal / Lazarus** für **Linux, macOS und Windows**.
 
 ## Hintergrund & Geschichte
