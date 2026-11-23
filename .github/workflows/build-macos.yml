@@ -1,4 +1,4 @@
-name: Build OBSKUR for macOS
+name: Build OBSKUR for macOS & Windows
 
 on:
   push:
@@ -8,7 +8,6 @@ on:
 jobs:
   build-macos:
     runs-on: macos-latest
-
     steps:
       - name: Repository auschecken
         uses: actions/checkout@v4
@@ -38,3 +37,27 @@ jobs:
         with:
           name: OBSKUR-macOS-App
           path: dist/obskur.app
+
+  build-windows:
+    runs-on: windows-latest
+    steps:
+      - name: Repository auschecken
+        uses: actions/checkout@v4
+
+      - name: Lazarus & FreePascal via Chocolatey installieren
+        run: choco install lazarus -y --no-progress
+
+      - name: Windows obskur.exe kompilieren
+        shell: pwsh
+        run: |
+          $laz = Get-ChildItem -Path "C:\" -Filter "lazbuild.exe" -Recurse -ErrorAction SilentlyContinue | Select-Object -First 1
+          & $laz.FullName --ws=win32 obskur.lpi
+          New-Item -ItemType Directory -Force -Path dist | Out-Null
+          $exe = Get-ChildItem -Path "lib" -Filter "obskur.exe" -Recurse | Select-Object -First 1
+          Copy-Item $exe.FullName -Destination "dist\obskur.exe"
+
+      - name: Windows EXE als Artifact hochladen
+        uses: actions/upload-artifact@v4
+        with:
+          name: OBSKUR-Windows-EXE
+          path: dist/obskur.exe
