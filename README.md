@@ -2,7 +2,7 @@
 
 🌐 **Language:** **English** | [Deutsch](README.de.md)
 
-![OBSKUR Studio 3D Plasma Sphere](preview.png)
+![OBSKUR Studio 3D Plasma Sphere](https://github.com/wuestawatschn/obskur-pas/releases/download/v1.0.0/preview.png))
 
 An interactive 3D function and sculpture generator written in **FreePascal / Lazarus** for **Linux, macOS, and Windows**.
 
