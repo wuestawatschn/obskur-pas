@@ -105,7 +105,7 @@ jobs:
           mkdir -p release_files
           zip -j release_files/OBSKUR-Linux-x86_64.zip artifacts/OBSKUR-Linux-x86_64/obskur-linux-x86_64
           zip -j release_files/OBSKUR-Windows-x64.zip artifacts/OBSKUR-Windows-EXE/obskur.exe
-          cd artifacts/OBSKUR-macOS-App && zip -r ../../release_files/OBSKUR-macOS-AppleSilicon.zip obskur.app
+          mkdir -p mac_pkg/obskur.app && cp -R artifacts/OBSKUR-macOS-App/* mac_pkg/obskur.app/ && (cd mac_pkg && zip -r ../release_files/OBSKUR-macOS-AppleSilicon.zip obskur.app)
 
       - name: GitHub Release veröffentlichen
         uses: softprops/action-gh-release@v2
